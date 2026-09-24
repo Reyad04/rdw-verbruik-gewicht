@@ -1,0 +1,10 @@
+__pycache__/
+.vscode
+.venv/
+.cache/
+.streamlit/cache/
+.env
+*.csv
+*.parquet
+autos.json
+kwaliteit.json
