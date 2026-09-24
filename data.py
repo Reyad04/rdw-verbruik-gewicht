@@ -150,20 +150,37 @@ def maak_dataset():
         voertuigen = ophalen(VOERTUIGEN, teken)
         brandstof = ophalen(BRANDSTOF, teken)
         schoon, telling = opschonen(voertuigen, brandstof)
+        # Sla herhaalde merknamen en modellen meteen op als categoriecodes.
+        # Zo bewaren we niet miljoenen losse teksten tot het einde van de download.
+        for kolom in ['merk', 'model']:
+            schoon[kolom] = schoon[kolom].astype('category')
         delen.append(schoon)
+        print(f'Deel {teken} verwerkt: {len(schoon):,} bruikbare auto’s.', flush=True)
+        # De ruwe tabellen zijn verwerkt en hoeven niet in het geheugen te blijven.
+        del voertuigen, brandstof
         for naam, aantal in telling.items():
             if naam not in totalen:
                 totalen[naam] = 0
             totalen[naam] = totalen[naam] + aantal
+    print('Download verwerkt. Delen samenvoegen...', flush=True)
+    # Geef alle delen dezelfde lijst met categorieën voordat we ze samenvoegen.
+    # Anders kan pandas de compacte codes weer omzetten naar losse teksten.
+    for kolom in ['merk', 'model']:
+        namen = []
+        for deel in delen:
+            namen.extend(deel[kolom].cat.categories)
+        namen = pd.Index(namen).unique()
+        for deel in delen:
+            deel[kolom] = deel[kolom].cat.set_categories(namen)
     auto = pd.concat(delen, ignore_index=True)
+    del delen, schoon, deel
     if auto.empty:
         raise ValueError('Geen bruikbare auto’s gevonden. Controleer de RDW-verbinding.')
-    # category bewaart herhaalde teksten compacter IN HET GEHEUGEN.
-    for kolom in ['merk', 'model']:
-        auto[kolom] = auto[kolom].astype('category')
     # Van de telling-dictionary maken we een tabel die mee naar de app gaat.
     controle = pd.DataFrame(totalen.items(), columns=['controle', 'aantal'])
     controle['einde'] = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())
+    geheugen_mb = auto.memory_usage(deep=True).sum() / 1_000_000
+    print(f'Dataset klaar: {len(auto):,} auto’s; tabel circa {geheugen_mb:.0f} MB. Dashboard starten...', flush=True)
     return auto, controle
 
 # Met 'python data.py' kun je de ophaalstap ook los uitvoeren.
