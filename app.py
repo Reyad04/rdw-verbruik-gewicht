@@ -105,8 +105,7 @@ if r is not None:
         titel = 'Hoger gewicht, lager verbruik'
 
 # Miljoenen punten tekenen maakt de browser traag. Alleen deze TEKENING krijgt
-# maximaal 5.000 willekeurige punten. 
-# Alle berekeningen gebruiken de hele selectie.
+# maximaal 5.000 willekeurige punten. Alle berekeningen gebruiken de hele selectie.
 # random_state=42 zorgt bij dezelfde dataset voor dezelfde gekozen punten.
 aantal_punten = min(5000, len(selectie))
 punten = selectie.sample(n=aantal_punten, random_state=42)
