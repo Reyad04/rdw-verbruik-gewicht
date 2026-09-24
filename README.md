@@ -190,4 +190,4 @@ De bestanden hebben nu korte uitlegblokken direct bij de moeilijke regels. Er zi
 - `iloc[0]` kiest de eerste rij; `iloc[-1]` de laatste rij.
 - `f'{waarde:.2f}'` maakt tekst van een getal en toont twee decimalen.
 - `try/except` vangt een fout op; `raise` geeft de fout door; `st.stop()` stopt het dashboard netjes.
-- `@st.cache_data` onthoudt de tabellen in het geheugen zolang het app-proces draait. Een herstart downloadt opnieuw.
+- `@st.cache_resource` onthoudt de tabellen in het geheugen zolang het app-proces draait. Een herstart downloadt opnieuw. `@st.cache_resource` bewaart één gedeelde dataset zonder voor iedere aanroep een nieuwe kopie te maken. Daarom lezen we `auto` en `controle` alleen; vóór het toevoegen van analysekolommen maken we een eigen kopie van de selectie met `.copy()`.
