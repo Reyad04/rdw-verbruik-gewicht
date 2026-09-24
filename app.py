@@ -11,9 +11,10 @@ st.set_page_config(page_title='Gewicht en verbruik', layout='centered')
 BLAUW = '#17628a'
 LABELS = {'gewicht': 'Leeggewicht (kg)', 'verbruik': 'Verbruik (l/100 km)', 'klasse': 'Gewichtsklasse (kg)', 'aantal': 'Aantal auto’s'}
 
-# Streamlit bewaart de tabellen in het geheugen zolang de app draait.
+# Streamlit bewaart één gedeelde versie van de tabellen in het geheugen.
+# We lezen auto en controle alleen. Verderop krijgt de selectie een eigen copy().
 # Een filterklik start de download dus niet opnieuw; een herstart wel.
-@st.cache_data(max_entries=1, show_spinner='RDW-data via de API ophalen. Dit kan lang duren; de voortgang staat in de logs.')
+@st.cache_resource(max_entries=1, show_spinner='RDW-data via de API ophalen. Dit kan lang duren; de voortgang staat in de logs.')
 def laden():
     # De twee tabellen komen rechtstreeks uit data.py terug naar dit dashboard.
     return maak_dataset()
@@ -104,7 +105,8 @@ if r is not None:
         titel = 'Hoger gewicht, lager verbruik'
 
 # Miljoenen punten tekenen maakt de browser traag. Alleen deze TEKENING krijgt
-# maximaal 5.000 willekeurige punten. Alle berekeningen gebruiken de hele selectie.
+# maximaal 5.000 willekeurige punten. 
+# Alle berekeningen gebruiken de hele selectie.
 # random_state=42 zorgt bij dezelfde dataset voor dezelfde gekozen punten.
 aantal_punten = min(5000, len(selectie))
 punten = selectie.sample(n=aantal_punten, random_state=42)
